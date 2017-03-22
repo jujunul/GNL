@@ -6,7 +6,7 @@
 /*   By: juthierr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/17 18:32:59 by juthierr          #+#    #+#             */
-/*   Updated: 2017/03/22 16:03:47 by juthierr         ###   ########.fr       */
+/*   Updated: 2017/03/22 19:27:04 by juthierr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@ int				ft_fill_line(t_line *start, int fd, char **line, int l)
 	char	*frit;
 
 	tmp = start;
+	
+	
 	while (tmp->next != NULL && tmp->fd != fd)
 		tmp = tmp->next;
 	occ = ft_strchr(tmp->mem, '\n');
@@ -32,14 +34,13 @@ int				ft_fill_line(t_line *start, int fd, char **line, int l)
 	}
 	else if (occ == NULL && l != 0)
 		return (2);
-	*occ = '\0';
 	i = occ - tmp->mem;
 	if (!(*line = ft_strnew(i)))
 		return (-1);
 	ft_strncpy(*line, tmp->mem, i);
 	frit = ft_strdup(occ + 1);
-	free(tmp->mem);
-	tmp->mem = frit;
+	//free(tmp->mem);
+	tmp->mem = ft_strdup(frit);
 	return (1);
 }
 
@@ -71,6 +72,8 @@ int				ft_add_elem(t_line **tmp, char *buf, int fd)
 int				ft_start_list(t_line *start, char *buf, int fd)
 {
 	t_line	*tmp;
+	char	*stock;
+	int		len;
 
 	tmp = start;
 	while (tmp->next != NULL && tmp->fd != fd)
@@ -79,9 +82,12 @@ int				ft_start_list(t_line *start, char *buf, int fd)
 	}
 	if (tmp->fd == fd)
 	{
-		if (!(tmp->mem = ft_realloc(tmp->mem, (int)ft_strlen(tmp->mem),
-						(int)ft_strlen(tmp->mem) + BUFF_SIZE)))
+		len = (int)ft_strlen(tmp->mem);
+		if (!(stock = ft_realloc(tmp->mem, (int)ft_strlen(tmp->mem),
+						((int)ft_strlen(tmp->mem) + BUFF_SIZE + 1))))
 			return (-1);
+		stock[len] = '\0';
+		tmp->mem = stock;
 		if (*buf != '\0')
 			ft_strcat(tmp->mem, buf);
 	}
@@ -90,6 +96,7 @@ int				ft_start_list(t_line *start, char *buf, int fd)
 		if (ft_add_elem(&tmp, buf, fd) == -1)
 			return (-1);
 	}
+	ft_bzero(buf, BUFF_SIZE);
 	return (1);
 }
 
@@ -100,7 +107,7 @@ int				get_next_line(const int fd, char **line)
 	int				l;
 	int				test;
 
-	if (!(buf = ft_strnew(BUFF_SIZE)) || (fd < 0))
+	if (!(buf = ft_strnew(BUFF_SIZE + 1)) || (fd < 0))
 		return (-1);
 	while ((l = read(fd, buf, BUFF_SIZE)) >= 0)
 	{
@@ -112,10 +119,9 @@ int				get_next_line(const int fd, char **line)
 			return (-1);
 		if ((test = ft_fill_line(start, fd, line, l)) != 2)
 		{
-		//	free(buf);
-		//	return (test);
+			free(buf);
+			return (test);
 		}
-		//ft_bzero(buf, BUFF_SIZE);
 	}
 	return (-1);
 }
@@ -126,21 +132,15 @@ int 			main(int ac, char **argv)
 	int fd2;
 	char *test;
 	char *test2;
+	char *test3;
 
 	(void)ac;
 	fd = open(argv[1], O_RDONLY);
 	get_next_line(fd, &test);
-	ft_putstr(test);
-	free(test);
-	ft_putchar('\n');
 	fd2 = open(argv[2], O_RDONLY);
 	get_next_line(fd2, &test2);
-	ft_putstr(test2);
-	free(test2);
-	ft_putchar('\n');
-	get_next_line(fd, &test);
 	ft_putstr(test);
-	free(test);
 	ft_putstr("\n");
+	ft_putstr(test2);
 	return (0);
 }
