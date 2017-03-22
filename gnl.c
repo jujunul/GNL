@@ -6,7 +6,7 @@
 /*   By: juthierr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/17 18:32:59 by juthierr          #+#    #+#             */
-/*   Updated: 2017/03/04 12:54:16 by juthierr         ###   ########.fr       */
+/*   Updated: 2017/03/22 16:03:47 by juthierr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,10 +112,10 @@ int				get_next_line(const int fd, char **line)
 			return (-1);
 		if ((test = ft_fill_line(start, fd, line, l)) != 2)
 		{
-			free(buf);
-			return (test);
+		//	free(buf);
+		//	return (test);
 		}
-		ft_bzero(buf, BUFF_SIZE);
+		//ft_bzero(buf, BUFF_SIZE);
 	}
 	return (-1);
 }
