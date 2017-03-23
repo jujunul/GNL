@@ -22,8 +22,6 @@ int				ft_fill_line(t_line *start, int fd, char **line, int l)
 	char	*frit;
 
 	tmp = start;
-	
-	
 	while (tmp->next != NULL && tmp->fd != fd)
 		tmp = tmp->next;
 	occ = ft_strchr(tmp->mem, '\n');
@@ -39,34 +37,34 @@ int				ft_fill_line(t_line *start, int fd, char **line, int l)
 		return (-1);
 	ft_strncpy(*line, tmp->mem, i);
 	frit = ft_strdup(occ + 1);
-	//free(tmp->mem);
-	tmp->mem = ft_strdup(frit);
+	free(tmp->mem);
+	tmp->mem = frit;
 	return (1);
 }
 
-int				ft_add_elem(t_line **tmp, char *buf, int fd)
+int				ft_add_elem(t_line **start, char *buf, int fd)
 {
 	t_line	*new;
 
-	if (!(*tmp))
-		{
-			if (!(*tmp = (t_line*)malloc(sizeof(t_line))))
-				return (-1);
-			(*tmp)->mem = ft_strnew(1);
-			(*tmp)->fd = fd;
-			(*tmp)->next = NULL;
-			return (1);
-		}
-	else
+	new = *start;
+	while (new)
 	{
-		if (!(new = (t_line*)malloc(sizeof(t_line))))
-			return (-1);
-		new->mem = ft_strdup(buf);
-		new->fd = fd;
-		(*tmp)->next = new;
-		return (1);
+		if (new->fd == fd)
+			return (1);
+		new = new->next;
 	}
-	return (-1);
+	if (!(new = (t_line*)malloc(sizeof(t_line))))
+		return (-1);
+	new->mem = ft_strdup(buf);
+	new->fd = fd;
+	if (!(*start))
+	{
+		*start = new;
+		(*start)->next = NULL;
+	}
+	else
+		(*start)->next = new;
+	return (1);
 }
 
 int				ft_start_list(t_line *start, char *buf, int fd)
@@ -83,11 +81,9 @@ int				ft_start_list(t_line *start, char *buf, int fd)
 	if (tmp->fd == fd)
 	{
 		len = (int)ft_strlen(tmp->mem);
-		if (!(stock = ft_realloc(tmp->mem, (int)ft_strlen(tmp->mem),
+		if (!(tmp->mem = ft_realloc(tmp->mem, (int)ft_strlen(tmp->mem),
 						((int)ft_strlen(tmp->mem) + BUFF_SIZE + 1))))
 			return (-1);
-		stock[len] = '\0';
-		tmp->mem = stock;
 		if (*buf != '\0')
 			ft_strcat(tmp->mem, buf);
 	}
@@ -122,25 +118,8 @@ int				get_next_line(const int fd, char **line)
 			free(buf);
 			return (test);
 		}
+		if (l == 0)
+			return (1);
 	}
 	return (-1);
-}
-
-int 			main(int ac, char **argv)
-{
-	int fd;
-	int fd2;
-	char *test;
-	char *test2;
-	char *test3;
-
-	(void)ac;
-	fd = open(argv[1], O_RDONLY);
-	get_next_line(fd, &test);
-	fd2 = open(argv[2], O_RDONLY);
-	get_next_line(fd2, &test2);
-	ft_putstr(test);
-	ft_putstr("\n");
-	ft_putstr(test2);
-	return (0);
 }
